@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Param, Delete, Patch, UsePipes, Validation
 import { TodosService } from './todos.service';
 import { Todo, TodoStatus } from './todo.model';
 import { CreateTodoDto } from './dto/create-todo.dto';
+import { TodoStatusValidationPipe } from './pipes/todo-status-validation.pipe';
 
 @Controller('todos')
 export class TodosController {
@@ -13,7 +14,7 @@ export class TodosController {
     }
 
     @Get('/:id')
-    getTaskById(@Param('id') id: string): Todo {
+    getTodoById(@Param('id') id: string): Todo {
         return this.taskService.getTodoById(id);
     }
 
@@ -31,7 +32,7 @@ export class TodosController {
     @Patch('/:id/status')
     updateTodoStatus(
         @Param('id') id: string,
-        @Body('status') status: TodoStatus,
+        @Body('status', TodoStatusValidationPipe) status: TodoStatus,
     ): Todo {
         return this.taskService.updateTodoStatus(id, status);
     }
