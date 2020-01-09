@@ -1,12 +1,14 @@
-import { Controller, Get, Post, Body, Param, Delete, Patch, UsePipes, ValidationPipe, ParseIntPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Patch, UsePipes, ValidationPipe, ParseIntPipe, Query, UseGuards } from '@nestjs/common';
 import { TodosService } from './todos.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { TodoStatusValidationPipe } from './pipes/todo-status-validation.pipe';
 import { Todo } from './todo.entity';
 import { TodoStatus } from './todo-status.enum';
 import { GetTodosFilterDto } from './dto/get-todo-filter.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('todos')
+@UseGuards(AuthGuard())
 export class TodosController {
     constructor(private taskService: TodosService){}
 
