@@ -3,6 +3,8 @@ import { CreateTodoDto } from './dto/create-todo.dto';
 import { TodoRepository } from './todo.repository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Todo } from './todo.entity';
+import { TodoStatus } from './todo-status.enum';
+import { GetTodosFilterDto } from './dto/get-todo-filter.dto';
 
 @Injectable()
 export class TodosService {
@@ -11,6 +13,10 @@ export class TodosService {
         @InjectRepository(TodoRepository)
         private todoRepository: TodoRepository
     ) {}
+    
+    getTodos(filterDto: GetTodosFilterDto) {
+
+    }
 
     async getTodoById(id: number): Promise<Todo> {
         const found =  await this.todoRepository.findOne(id);
@@ -28,19 +34,16 @@ export class TodosService {
 
     async deleteTodo(id: number): Promise<void> {
         const result = await this.todoRepository.delete(id);
+
+        if(result.affected === 0) {
+            throw new NotFoundException(`Todo with ID ${id} not found`);
+        }
     }
 
-    /* 
-    getAllTodos(): Todo[] {
-        return this.todos;
-    }
-
-    
-
-    updateTodoStatus(id: string, status: TodoStatus): Todo {
-        const todo = this.getTodoById(id);
+    async updateTodoStatus(id: number, status: TodoStatus): Promise<Todo> {
+        const todo = await this.getTodoById(id);
         todo.status = status;
+        await todo.save();
         return todo;
     } 
-    */
 }

@@ -1,12 +1,19 @@
-import { Controller, Get, Post, Body, Param, Delete, Patch, UsePipes, ValidationPipe, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Patch, UsePipes, ValidationPipe, ParseIntPipe, Query } from '@nestjs/common';
 import { TodosService } from './todos.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { TodoStatusValidationPipe } from './pipes/todo-status-validation.pipe';
 import { Todo } from './todo.entity';
+import { TodoStatus } from './todo-status.enum';
+import { GetTodosFilterDto } from './dto/get-todo-filter.dto';
 
 @Controller('todos')
 export class TodosController {
     constructor(private taskService: TodosService){}
+
+    @Get() 
+    getTodos(@Query(ValidationPipe) filterDto: GetTodosFilterDto) {
+        return this.taskService.getAllTodos();
+    }
 
     @Get('/:id')
     getTodoById(@Param('id', ParseIntPipe) id: number): Promise<Todo> {
@@ -25,23 +32,11 @@ export class TodosController {
         return this.taskService.deleteTodo(id);
     }
 
-    /*   
-    @Get() 
-    getAllTodos(): Todo[] {
-        return this.taskService.getAllTodos();
-    }
-
- 
-
-   
-
-
     @Patch('/:id/status')
     updateTodoStatus(
-        @Param('id') id: string,
+        @Param('id', ParseIntPipe) id: number,
         @Body('status', TodoStatusValidationPipe) status: TodoStatus,
-    ): Todo {
+    ): Promise<Todo> {
         return this.taskService.updateTodoStatus(id, status);
     } 
-    */
 }
