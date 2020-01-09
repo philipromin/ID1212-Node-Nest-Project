@@ -11,8 +11,8 @@ export class TodosController {
     constructor(private taskService: TodosService){}
 
     @Get() 
-    getTodos(@Query(ValidationPipe) filterDto: GetTodosFilterDto) {
-        return this.taskService.getAllTodos();
+    getTodos(@Query(ValidationPipe) filterDto: GetTodosFilterDto): Promise<Todo[]> {
+        return this.taskService.getTodos(filterDto);
     }
 
     @Get('/:id')

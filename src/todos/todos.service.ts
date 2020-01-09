@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException} from '@nestjs/common';
+import { Injectable, NotFoundException, Query, ValidationPipe} from '@nestjs/common';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { TodoRepository } from './todo.repository';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -14,8 +14,8 @@ export class TodosService {
         private todoRepository: TodoRepository
     ) {}
     
-    getTodos(filterDto: GetTodosFilterDto) {
-
+    getTodos(filterDto: GetTodosFilterDto): Promise<Todo[]> {
+        return this.todoRepository.getTodos(filterDto);
     }
 
     async getTodoById(id: number): Promise<Todo> {
