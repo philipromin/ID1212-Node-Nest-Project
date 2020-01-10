@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Todo } from './todo.entity';
 import { TodoStatus } from './todo-status.enum';
 import { GetTodosFilterDto } from './dto/get-todo-filter.dto';
+import { User } from 'src/auth/user.entity';
 
 @Injectable()
 export class TodosService {
@@ -14,12 +15,12 @@ export class TodosService {
         private todoRepository: TodoRepository
     ) {}
     
-    getTodos(filterDto: GetTodosFilterDto): Promise<Todo[]> {
-        return this.todoRepository.getTodos(filterDto);
+    getTodos(filterDto: GetTodosFilterDto, user: User): Promise<Todo[]> {
+        return this.todoRepository.getTodos(filterDto, user);
     }
 
-    async getTodoById(id: number): Promise<Todo> {
-        const found =  await this.todoRepository.findOne(id);
+    async getTodoById(id: number, user: User): Promise<Todo> {
+        const found =  await this.todoRepository.findOne({ where: { id, userId: user.id }});
 
         if(!found) {
             throw new NotFoundException(`Todo with ID ${id} not found`);
@@ -28,22 +29,22 @@ export class TodosService {
         return found;
     }
 
-    async createTodo(createTodoDto: CreateTodoDto): Promise<Todo> {
-        return this.todoRepository.createTodo(createTodoDto);
+    async createTodo(createTodoDto: CreateTodoDto, user: User): Promise<Todo> {
+        return this.todoRepository.createTodo(createTodoDto, user);
     }
 
-    async deleteTodo(id: number): Promise<void> {
-        const result = await this.todoRepository.delete(id);
+    async deleteTodo(id: number, user: User): Promise<void> {
+        const result = await this.todoRepository.delete({ id, userId: user.id });
 
         if(result.affected === 0) {
             throw new NotFoundException(`Todo with ID ${id} not found`);
         }
     }
 
-    async updateTodoStatus(id: number, status: TodoStatus): Promise<Todo> {
-        const todo = await this.getTodoById(id);
+    async updateTodoStatus(id: number, status: TodoStatus, user: User): Promise<Todo> {
+        const todo = await this.getTodoById(id, user);
         todo.status = status;
         await todo.save();
         return todo;
-    } 
+    }
 }

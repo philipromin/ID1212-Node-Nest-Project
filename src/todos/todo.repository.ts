@@ -3,13 +3,16 @@ import { Todo } from "./todo.entity";
 import { CreateTodoDto } from "./dto/create-todo.dto";
 import { TodoStatus } from "./todo-status.enum";
 import { GetTodosFilterDto } from "./dto/get-todo-filter.dto";
+import { User } from "src/auth/user.entity";
 
 @EntityRepository(Todo)
 export class TodoRepository extends Repository<Todo> {
     
-    async getTodos(filterDto: GetTodosFilterDto): Promise<Todo[]> {
+    async getTodos(filterDto: GetTodosFilterDto, user: User): Promise<Todo[]> {
         const { status, search } = filterDto;
         const query = this.createQueryBuilder('todo');
+
+        query.where('todo.userId = :userId', { userId: user.id });
 
         if(status) {
             query.andWhere('todo.status = :status', { status });
@@ -23,13 +26,16 @@ export class TodoRepository extends Repository<Todo> {
         return todos;
     }
     
-    async createTodo(createTodoDto: CreateTodoDto): Promise<Todo> {
+    async createTodo(createTodoDto: CreateTodoDto, user: User): Promise<Todo> {
         const { description } = createTodoDto;
 
         const todo = new Todo();
         todo.description = description;
         todo.status = TodoStatus.IN_PROGRESS;
+        todo.user = user;
         await todo.save();
+
+        delete todo.user;
 
         return todo;
     }
